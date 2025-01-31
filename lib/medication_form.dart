@@ -8,6 +8,7 @@ class MedicationForm extends StatefulWidget {
 }
 
 class _MedicationFormState extends State<MedicationForm> {
+  // Variables para manejar el estado de las selecciones
   String? _gradoInstruccion;
   String? _estadoCivil;
   String? _actividadFisica;
@@ -49,6 +50,9 @@ class _MedicationFormState extends State<MedicationForm> {
     "¿Qué molestias presenta?",
   ];
 
+  // Variable para manejar la selección de Paciente Expuesto/No Expuesto
+  String? _pacienteExpuesto;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -63,7 +67,13 @@ class _MedicationFormState extends State<MedicationForm> {
             children: [
               _buildFormularioSociodemografico(),
               const SizedBox(height: 32),
-              _buildMedicationForm(),
+
+              // Mostrar el Anexo 5 solo si el paciente está seleccionado como "Expuesto"
+              Visibility(
+                visible:
+                    _pacienteExpuesto == 'Expuesto', // Condición de visibilidad
+                child: _buildMedicationForm(),
+              ),
             ],
           ),
         ),
@@ -75,7 +85,7 @@ class _MedicationFormState extends State<MedicationForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Fila para el título y los campos de Entrevista N° y Paciente N°
+        // Fila para el título, radio buttons y los campos de Entrevista N° y Paciente N°
         Row(
           children: [
             const Text(
@@ -83,6 +93,44 @@ class _MedicationFormState extends State<MedicationForm> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const Spacer(), // Espacio flexible para empujar los campos a la derecha
+
+            // Radio buttons para Paciente Expuesto/No Expuesto
+            Row(
+              children: [
+                Row(
+                  children: [
+                    Radio<String>(
+                      value: 'Expuesto',
+                      groupValue: _pacienteExpuesto,
+                      onChanged: (value) {
+                        setState(() {
+                          _pacienteExpuesto = value;
+                        });
+                      },
+                    ),
+                    const Text('Expuesto'),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Radio<String>(
+                      value: 'No Expuesto',
+                      groupValue: _pacienteExpuesto,
+                      onChanged: (value) {
+                        setState(() {
+                          _pacienteExpuesto = value;
+                        });
+                      },
+                    ),
+                    const Text('No Expuesto'),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(
+                width: 16), // Espacio entre los radio buttons y los campos
+
+            // Campo de Entrevista N°
             SizedBox(
               width: 150, // Ancho fijo para los cuadrados
               child: TextField(
@@ -98,6 +146,8 @@ class _MedicationFormState extends State<MedicationForm> {
               ),
             ),
             const SizedBox(width: 16), // Espacio entre los campos
+
+            // Campo de Paciente N°
             SizedBox(
               width: 150, // Ancho fijo para los cuadrados
               child: TextField(
