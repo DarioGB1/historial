@@ -1,7 +1,18 @@
 import 'package:flutter/material.dart';
-import 'medication_form.dart';
+import 'package:firebase_core/firebase_core.dart'; // Importa firebase_core
+import 'firebase_options.dart'; // Importa las opciones de Firebase generadas
+import 'medication_form.dart'; // Importa tu formulario médico
 
-void main() {
+void main() async {
+  // Asegura que Flutter esté inicializado
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Inicializa Firebase con las opciones de la plataforma actual
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // Ejecuta la aplicación
   runApp(const MyApp());
 }
 
@@ -17,7 +28,8 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MedicationForm(),
+      home:
+          const MedicationForm(), // Usa tu formulario médico como pantalla principal
     );
   }
 }

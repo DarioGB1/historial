@@ -8,16 +8,17 @@ class MedicationForm extends StatefulWidget {
 }
 
 class _MedicationFormState extends State<MedicationForm> {
-  String? _gradoInstruccion; 
+  String? _gradoInstruccion;
   String? _estadoCivil;
   String? _actividadFisica;
   String? _consumoAlcohol;
   String? _fuma;
   String? _consumoTabaco;
   String? _terapiaAlternativa;
-  String? _cualesTerapias;  
+  String? _cualesTerapias;
   final Map<int, bool?> responses = {};
-  final Map<int, String?> times = {}; // Nuevo mapa para almacenar el número de veces
+  final Map<int, String?> times =
+      {}; // Nuevo mapa para almacenar el número de veces
   final List<String> questions = [
     "¿Se olvida alguna vez tomar su medicación?",
     "¿Cuántas veces?",
@@ -71,61 +72,63 @@ class _MedicationFormState extends State<MedicationForm> {
   }
 
   Widget _buildFormularioSociodemografico() {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      // Fila para el título y los campos de Entrevista N° y Paciente N°
-      Row(
-        children: [
-          const Text(
-            'ANEXO 3 | Formulario sociodemográfico',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const Spacer(), // Espacio flexible para empujar los campos a la derecha
-          SizedBox(
-            width: 150, // Ancho fijo para los cuadrados
-            child: TextField(
-              decoration: InputDecoration(
-                labelText: 'Entrevista N°',
-                border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 8), // Ajustar el padding
-              ),
-              onChanged: (value) {
-                // Aquí puedes manejar el valor ingresado
-              },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Fila para el título y los campos de Entrevista N° y Paciente N°
+        Row(
+          children: [
+            const Text(
+              'ANEXO 3 | Formulario sociodemográfico',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-          ),
-          const SizedBox(width: 16), // Espacio entre los campos
-          SizedBox(
-            width: 150,// Ancho fijo para los cuadrados
-            child: TextField(
-              decoration: InputDecoration(
-                labelText: 'Paciente N°',
-                border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 8), // Ajustar el padding
+            const Spacer(), // Espacio flexible para empujar los campos a la derecha
+            SizedBox(
+              width: 150, // Ancho fijo para los cuadrados
+              child: TextField(
+                decoration: InputDecoration(
+                  labelText: 'Entrevista N°',
+                  border: OutlineInputBorder(),
+                  contentPadding: EdgeInsets.symmetric(
+                      vertical: 8, horizontal: 8), // Ajustar el padding
+                ),
+                onChanged: (value) {
+                  // Aquí puedes manejar el valor ingresado
+                },
               ),
-              onChanged: (value) {
-                // Aquí puedes manejar el valor ingresado
-              },
             ),
-          ),
-        ],
-      ),
-      const SizedBox(height: 16),
+            const SizedBox(width: 16), // Espacio entre los campos
+            SizedBox(
+              width: 150, // Ancho fijo para los cuadrados
+              child: TextField(
+                decoration: InputDecoration(
+                  labelText: 'Paciente N°',
+                  border: OutlineInputBorder(),
+                  contentPadding: EdgeInsets.symmetric(
+                      vertical: 8, horizontal: 8), // Ajustar el padding
+                ),
+                onChanged: (value) {
+                  // Aquí puedes manejar el valor ingresado
+                },
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
 
-      // Resto del formulario
-      _seccionReferenciaInstitucion(),
-      const SizedBox(height: 16),
-      _seccionDatosPaciente(),
-      const SizedBox(height: 16),
-      _seccionDatosFisicos(),
-      const SizedBox(height: 16),
-      _seccionCriteriosDeInclusion(),
-      const SizedBox(height: 16),
-      _seccionEstiloDeVida(),
-    ],
-  );
-}
+        // Resto del formulario
+        _seccionReferenciaInstitucion(),
+        const SizedBox(height: 16),
+        _seccionDatosPaciente(),
+        const SizedBox(height: 16),
+        _seccionDatosFisicos(),
+        const SizedBox(height: 16),
+        _seccionCriteriosDeInclusion(),
+        const SizedBox(height: 16),
+        _seccionEstiloDeVida(),
+      ],
+    );
+  }
 
   Widget _buildMedicationForm() {
     return Column(
@@ -230,7 +233,6 @@ class _MedicationFormState extends State<MedicationForm> {
       ],
     );
   }
-
 
   Widget _seccionReferenciaInstitucion() {
     return Column(
@@ -531,221 +533,223 @@ class _MedicationFormState extends State<MedicationForm> {
   }
 
   Widget _seccionCriteriosDeInclusion() {
-  final List<String> medicamentosBase = [
-    'Rifampicina 10mg/kg',
-    'Isoniazida 15mg/kg',
-    'Pirazinamida 1-1.5g-2g',
-    'Etambutol 800-1,200-1,600mg',
-    'Levofloxacina 15mg-20mg/kg'
-  ];
+    final List<String> medicamentosBase = [
+      'Rifampicina 10mg/kg',
+      'Isoniazida 15mg/kg',
+      'Pirazinamida 1-1.5g-2g',
+      'Etambutol 800-1,200-1,600mg',
+      'Levofloxacina 15mg-20mg/kg'
+    ];
 
-  List<String> medicamentos = List.from(medicamentosBase);
-  final Map<String, Map<String, dynamic>> medicamentoData = {
-    for (var med in medicamentosBase)
-      med: {'dosis': null, 'cantidad': null, 'reaccionesAdversas': null},
-  };
+    List<String> medicamentos = List.from(medicamentosBase);
+    final Map<String, Map<String, dynamic>> medicamentoData = {
+      for (var med in medicamentosBase)
+        med: {'dosis': null, 'cantidad': null, 'reaccionesAdversas': null},
+    };
 
-  bool tratamientoSi = false;
-  bool tratamientoNo = false;
+    bool tratamientoSi = false;
+    bool tratamientoNo = false;
 
-  // Variables para almacenar los resultados de diagnóstico
-  String? _baciloscopia;
-  String? _cultivo;
-  String? _pruebaGeneXpert;
+    // Variables para almacenar los resultados de diagnóstico
+    String? _baciloscopia;
+    String? _cultivo;
+    String? _pruebaGeneXpert;
 
-  return StatefulBuilder(builder: (context, setState) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Criterios de inclusión',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8.0),
+    return StatefulBuilder(builder: (context, setState) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Criterios de inclusión',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8.0),
 
-        // Diagnóstico de Tuberculosis Pulmonar
-        const Text(
-          'Diagnóstico de Tuberculosis Pulmonar',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8.0),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                decoration: InputDecoration(
-                  labelText: 'Baciloscopia',
-                  border: OutlineInputBorder(),
+          // Diagnóstico de Tuberculosis Pulmonar
+          const Text(
+            'Diagnóstico de Tuberculosis Pulmonar',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8.0),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Baciloscopia',
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      _baciloscopia = value;
+                    });
+                  },
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    _baciloscopia = value;
-                  });
-                },
               ),
-            ),
-            const SizedBox(width: 16.0),
-            Expanded(
-              child: TextField(
-                decoration: InputDecoration(
-                  labelText: 'Cultivo',
-                  border: OutlineInputBorder(),
+              const SizedBox(width: 16.0),
+              Expanded(
+                child: TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Cultivo',
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      _cultivo = value;
+                    });
+                  },
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    _cultivo = value;
-                  });
-                },
               ),
-            ),
-            const SizedBox(width: 16.0),
-            Expanded(
-              child: TextField(
-                decoration: InputDecoration(
-                  labelText: 'Prueba GeneXpert',
-                  border: OutlineInputBorder(),
+              const SizedBox(width: 16.0),
+              Expanded(
+                child: TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Prueba GeneXpert',
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      _pruebaGeneXpert = value;
+                    });
+                  },
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    _pruebaGeneXpert = value;
-                  });
-                },
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16.0),
+            ],
+          ),
+          const SizedBox(height: 16.0),
 
-        // Tratamiento con terapia antituberculosa
-        const Text(
-          'Tratamiento con terapia antituberculosa',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8.0),
-        Row(
-          children: [
-            Expanded(
-              child: CheckboxListTile(
-                title: const Text('Sí'),
-                value: tratamientoSi,
-                onChanged: (value) {
-                  setState(() {
-                    tratamientoSi = value!;
-                    if (tratamientoSi) tratamientoNo = false;
-                  });
-                },
+          // Tratamiento con terapia antituberculosa
+          const Text(
+            'Tratamiento con terapia antituberculosa',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8.0),
+          Row(
+            children: [
+              Expanded(
+                child: CheckboxListTile(
+                  title: const Text('Sí'),
+                  value: tratamientoSi,
+                  onChanged: (value) {
+                    setState(() {
+                      tratamientoSi = value!;
+                      if (tratamientoSi) tratamientoNo = false;
+                    });
+                  },
+                ),
               ),
-            ),
-            Expanded(
-              child: CheckboxListTile(
-                title: const Text('No'),
-                value: tratamientoNo,
-                onChanged: (value) {
-                  setState(() {
-                    tratamientoNo = value!;
-                    if (tratamientoNo) tratamientoSi = false;
-                  });
-                },
+              Expanded(
+                child: CheckboxListTile(
+                  title: const Text('No'),
+                  value: tratamientoNo,
+                  onChanged: (value) {
+                    setState(() {
+                      tratamientoNo = value!;
+                      if (tratamientoNo) tratamientoSi = false;
+                    });
+                  },
+                ),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16.0),
+            ],
+          ),
+          const SizedBox(height: 16.0),
 
-        // Fármacos
-        const Text(
-          'Fármacos:',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8.0),
-        Column(
-          children: medicamentos.map((medicamento) {
-            return Card(
-              margin: const EdgeInsets.symmetric(vertical: 8.0),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      medicamento,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8.0),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            decoration: InputDecoration(
-                              labelText: 'Número de dosis',
-                              border: OutlineInputBorder(),
-                            ),
-                            keyboardType: TextInputType.number,
-                            onChanged: (value) {
-                              setState(() {
-                                medicamentoData[medicamento]!['dosis'] =
-                                    int.tryParse(value);
-                              });
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 8.0),
-                        Expanded(
-                          child: TextField(
-                            decoration: InputDecoration(
-                              labelText: 'Cantidad',
-                              border: OutlineInputBorder(),
-                            ),
-                            keyboardType: TextInputType.number,
-                            onChanged: (value) {
-                              setState(() {
-                                medicamentoData[medicamento]!['cantidad'] =
-                                    int.tryParse(value);
-                              });
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8.0),
-                    TextField(
-                      decoration: InputDecoration(
-                        labelText: 'Reacciones adversas',
-                        border: OutlineInputBorder(),
+          // Fármacos
+          const Text(
+            'Fármacos:',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8.0),
+          Column(
+            children: medicamentos.map((medicamento) {
+              return Card(
+                margin: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        medicamento,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      onChanged: (value) {
-                        setState(() {
-                          medicamentoData[medicamento]!['reaccionesAdversas'] = value;
-                        });
-                      },
-                    ),
-                  ],
+                      const SizedBox(height: 8.0),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              decoration: InputDecoration(
+                                labelText: 'Número de dosis',
+                                border: OutlineInputBorder(),
+                              ),
+                              keyboardType: TextInputType.number,
+                              onChanged: (value) {
+                                setState(() {
+                                  medicamentoData[medicamento]!['dosis'] =
+                                      int.tryParse(value);
+                                });
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 8.0),
+                          Expanded(
+                            child: TextField(
+                              decoration: InputDecoration(
+                                labelText: 'Cantidad',
+                                border: OutlineInputBorder(),
+                              ),
+                              keyboardType: TextInputType.number,
+                              onChanged: (value) {
+                                setState(() {
+                                  medicamentoData[medicamento]!['cantidad'] =
+                                      int.tryParse(value);
+                                });
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8.0),
+                      TextField(
+                        decoration: InputDecoration(
+                          labelText: 'Reacciones adversas',
+                          border: OutlineInputBorder(),
+                        ),
+                        onChanged: (value) {
+                          setState(() {
+                            medicamentoData[medicamento]![
+                                'reaccionesAdversas'] = value;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            );
-          }).toList(),
-        ),
-        ElevatedButton.icon(
-          onPressed: () async {
-            final nuevoMedicamento = await _mostrarDialogoNuevoFarmaco(context);
-            if (nuevoMedicamento != null && nuevoMedicamento.isNotEmpty) {
-              setState(() {
-                medicamentos.add(nuevoMedicamento);
-                medicamentoData[nuevoMedicamento] = {
-                  'dosis': null,
-                  'cantidad': null,
-                  'reaccionesAdversas': null,
-                };
-              });
-            }
-          },
-          icon: const Icon(Icons.add),
-          label: const Text('Añadir nuevo fármaco'),
-        ),
-      ],
-    );
-  });
-}
+              );
+            }).toList(),
+          ),
+          ElevatedButton.icon(
+            onPressed: () async {
+              final nuevoMedicamento =
+                  await _mostrarDialogoNuevoFarmaco(context);
+              if (nuevoMedicamento != null && nuevoMedicamento.isNotEmpty) {
+                setState(() {
+                  medicamentos.add(nuevoMedicamento);
+                  medicamentoData[nuevoMedicamento] = {
+                    'dosis': null,
+                    'cantidad': null,
+                    'reaccionesAdversas': null,
+                  };
+                });
+              }
+            },
+            icon: const Icon(Icons.add),
+            label: const Text('Añadir nuevo fármaco'),
+          ),
+        ],
+      );
+    });
+  }
 
   Future<String?> _mostrarDialogoNuevoFarmaco(BuildContext context) async {
     TextEditingController controlador = TextEditingController();
@@ -781,247 +785,252 @@ class _MedicationFormState extends State<MedicationForm> {
   }
 
   Widget _seccionEstiloDeVida() {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      const Text(
-        'Estilo de vida',
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ),
-      const SizedBox(height: 8.0),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Estilo de vida',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8.0),
 
-      // Actividad Física
-      const Text(
-        'Actividad física',
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ),
-      Row(
-        children: [
-          _buildRadioOption('Diaria', _actividadFisica, (value) {
-            setState(() {
-              _actividadFisica = value;
-            });
-          }),
-          _buildRadioOption('2-3 veces por semana', _actividadFisica, (value) {
-            setState(() {
-              _actividadFisica = value;
-            });
-          }),
-          _buildRadioOption('1 vez por semana', _actividadFisica, (value) {
-            setState(() {
-              _actividadFisica = value;
-            });
-          }),
-          _buildRadioOption('Al menos una vez al mes', _actividadFisica, (value) {
-            setState(() {
-              _actividadFisica = value;
-            });
-          }),
-          _buildRadioOption('Nunca', _actividadFisica, (value) {
-            setState(() {
-              _actividadFisica = value;
-            });
-          }),
-        ],
-      ),
-      const SizedBox(height: 16.0),
+        // Actividad Física
+        const Text(
+          'Actividad física',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        Row(
+          children: [
+            _buildRadioOption('Diaria', _actividadFisica, (value) {
+              setState(() {
+                _actividadFisica = value;
+              });
+            }),
+            _buildRadioOption('2-3 veces por semana', _actividadFisica,
+                (value) {
+              setState(() {
+                _actividadFisica = value;
+              });
+            }),
+            _buildRadioOption('1 vez por semana', _actividadFisica, (value) {
+              setState(() {
+                _actividadFisica = value;
+              });
+            }),
+            _buildRadioOption('Al menos una vez al mes', _actividadFisica,
+                (value) {
+              setState(() {
+                _actividadFisica = value;
+              });
+            }),
+            _buildRadioOption('Nunca', _actividadFisica, (value) {
+              setState(() {
+                _actividadFisica = value;
+              });
+            }),
+          ],
+        ),
+        const SizedBox(height: 16.0),
 
-      // Consumo de Alcohol
-      const Text(
-        'Consumo de alcohol',
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ),
-      Row(
-        children: [
-          _buildRadioOption('Diaria', _consumoAlcohol, (value) {
-            setState(() {
-              _consumoAlcohol = value;
-            });
-          }),
-          _buildRadioOption('>2 veces por semana', _consumoAlcohol, (value) {
-            setState(() {
-              _consumoAlcohol = value;
-            });
-          }),
-          _buildRadioOption('Al menos 1 vez por semana', _consumoAlcohol, (value) {
-            setState(() {
-              _consumoAlcohol = value;
-            });
-          }),
-          _buildRadioOption('>2 veces al mes', _consumoAlcohol, (value) {
-            setState(() {
-              _consumoAlcohol = value;
-            });
-          }),
-          _buildRadioOption('<1 vez al mes', _consumoAlcohol, (value) {
-            setState(() {
-              _consumoAlcohol = value;
-            });
-          }),
-          _buildRadioOption('Nunca', _consumoAlcohol, (value) {
-            setState(() {
-              _consumoAlcohol = value;
-            });
-          }),
-        ],
-      ),
-      const SizedBox(height: 16.0),
+        // Consumo de Alcohol
+        const Text(
+          'Consumo de alcohol',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        Row(
+          children: [
+            _buildRadioOption('Diaria', _consumoAlcohol, (value) {
+              setState(() {
+                _consumoAlcohol = value;
+              });
+            }),
+            _buildRadioOption('>2 veces por semana', _consumoAlcohol, (value) {
+              setState(() {
+                _consumoAlcohol = value;
+              });
+            }),
+            _buildRadioOption('Al menos 1 vez por semana', _consumoAlcohol,
+                (value) {
+              setState(() {
+                _consumoAlcohol = value;
+              });
+            }),
+            _buildRadioOption('>2 veces al mes', _consumoAlcohol, (value) {
+              setState(() {
+                _consumoAlcohol = value;
+              });
+            }),
+            _buildRadioOption('<1 vez al mes', _consumoAlcohol, (value) {
+              setState(() {
+                _consumoAlcohol = value;
+              });
+            }),
+            _buildRadioOption('Nunca', _consumoAlcohol, (value) {
+              setState(() {
+                _consumoAlcohol = value;
+              });
+            }),
+          ],
+        ),
+        const SizedBox(height: 16.0),
 
-      // Fuma
-      const Text(
-        'Fuma',
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ),
-      Row(
-        children: [
-          _buildRadioOption('Sí', _fuma, (value) {
-            setState(() {
-              _fuma = value;
-            });
-          }),
-          _buildRadioOption('No', _fuma, (value) {
-            setState(() {
-              _fuma = value;
-            });
-          }),
-        ],
-      ),
-      const SizedBox(height: 16.0),
+        // Fuma
+        const Text(
+          'Fuma',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        Row(
+          children: [
+            _buildRadioOption('Sí', _fuma, (value) {
+              setState(() {
+                _fuma = value;
+              });
+            }),
+            _buildRadioOption('No', _fuma, (value) {
+              setState(() {
+                _fuma = value;
+              });
+            }),
+          ],
+        ),
+        const SizedBox(height: 16.0),
 
-      // Consumo de Tabaco
-      const Text(
-        'Consumo de tabaco',
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ),
-      Row(
-        children: [
-          _buildRadioOption('Diaria', _consumoTabaco, (value) {
-            setState(() {
-              _consumoTabaco = value;
-            });
-          }),
-          _buildRadioOption('>2 veces por semana', _consumoTabaco, (value) {
-            setState(() {
-              _consumoTabaco = value;
-            });
-          }),
-          _buildRadioOption('Al menos 1 vez por semana', _consumoTabaco, (value) {
-            setState(() {
-              _consumoTabaco = value;
-            });
-          }),
-          _buildRadioOption('>2 veces al mes', _consumoTabaco, (value) {
-            setState(() {
-              _consumoTabaco = value;
-            });
-          }),
-          _buildRadioOption('<1 vez al mes', _consumoTabaco, (value) {
-            setState(() {
-              _consumoTabaco = value;
-            });
-          }),
-          _buildRadioOption('Nunca', _consumoTabaco, (value) {
-            setState(() {
-              _consumoTabaco = value;
-            });
-          }),
-        ],
-      ),
-      const SizedBox(height: 16.0),
+        // Consumo de Tabaco
+        const Text(
+          'Consumo de tabaco',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        Row(
+          children: [
+            _buildRadioOption('Diaria', _consumoTabaco, (value) {
+              setState(() {
+                _consumoTabaco = value;
+              });
+            }),
+            _buildRadioOption('>2 veces por semana', _consumoTabaco, (value) {
+              setState(() {
+                _consumoTabaco = value;
+              });
+            }),
+            _buildRadioOption('Al menos 1 vez por semana', _consumoTabaco,
+                (value) {
+              setState(() {
+                _consumoTabaco = value;
+              });
+            }),
+            _buildRadioOption('>2 veces al mes', _consumoTabaco, (value) {
+              setState(() {
+                _consumoTabaco = value;
+              });
+            }),
+            _buildRadioOption('<1 vez al mes', _consumoTabaco, (value) {
+              setState(() {
+                _consumoTabaco = value;
+              });
+            }),
+            _buildRadioOption('Nunca', _consumoTabaco, (value) {
+              setState(() {
+                _consumoTabaco = value;
+              });
+            }),
+          ],
+        ),
+        const SizedBox(height: 16.0),
 
-      // Consumo de Terapia Alternativa (Hierbas Medicinales)
-      const Text(
-        'Consumo de terapia alternativa (Hierbas medicinales)',
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ),
-      Row(
-        children: [
-          _buildRadioOption('Sí', _terapiaAlternativa, (value) {
-            setState(() {
-              _terapiaAlternativa = value;
-            });
-          }),
-          _buildRadioOption('No', _terapiaAlternativa, (value) {
-            setState(() {
-              _terapiaAlternativa = value;
-            });
-          }),
-        ],
-      ),
-      const SizedBox(height: 8.0),
+        // Consumo de Terapia Alternativa (Hierbas Medicinales)
+        const Text(
+          'Consumo de terapia alternativa (Hierbas medicinales)',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        Row(
+          children: [
+            _buildRadioOption('Sí', _terapiaAlternativa, (value) {
+              setState(() {
+                _terapiaAlternativa = value;
+              });
+            }),
+            _buildRadioOption('No', _terapiaAlternativa, (value) {
+              setState(() {
+                _terapiaAlternativa = value;
+              });
+            }),
+          ],
+        ),
+        const SizedBox(height: 8.0),
 
-      // Campo de texto para "Cuáles"
-      if (_terapiaAlternativa == 'Sí')
+        // Campo de texto para "Cuáles"
+        if (_terapiaAlternativa == 'Sí')
+          TextField(
+            decoration: InputDecoration(
+              labelText: 'Cuáles',
+              border: OutlineInputBorder(),
+            ),
+            onChanged: (value) {
+              setState(() {
+                _cualesTerapias = value;
+              });
+            },
+          ),
+
+        const SizedBox(height: 16.0),
+
+        // Control de la efectividad terapéutica de tuberculosis pulmonar
+        const Text(
+          'Control de la efectividad terapéutica de tuberculosis pulmonar',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8.0),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                decoration: InputDecoration(
+                  labelText: 'Resultado de prueba Basiloscopia',
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (value) {
+                  // Aquí puedes manejar el valor ingresado
+                },
+              ),
+            ),
+            const SizedBox(width: 16.0),
+            Expanded(
+              child: TextField(
+                decoration: InputDecoration(
+                  labelText: 'Resultado de prueba de cultivo',
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (value) {
+                  // Aquí puedes manejar el valor ingresado
+                },
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16.0),
+
+        // Resultado de prueba GeneXpert
+        const Text(
+          'Resultado de prueba GeneXpert',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 8.0),
         TextField(
           decoration: InputDecoration(
-            labelText: 'Cuáles',
+            labelText: 'Resultado de prueba GeneXpert',
             border: OutlineInputBorder(),
           ),
           onChanged: (value) {
-            setState(() {
-              _cualesTerapias = value;
-            });
+            // Aquí puedes manejar el valor ingresado
           },
         ),
-
-      const SizedBox(height: 16.0),
-
-      // Control de la efectividad terapéutica de tuberculosis pulmonar
-      const Text(
-        'Control de la efectividad terapéutica de tuberculosis pulmonar',
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ),
-      const SizedBox(height: 8.0),
-      Row(
-        children: [
-          Expanded(
-            child: TextField(
-              decoration: InputDecoration(
-                labelText: 'Resultado de prueba Basiloscopia',
-                border: OutlineInputBorder(),
-              ),
-              onChanged: (value) {
-                // Aquí puedes manejar el valor ingresado
-              },
-            ),
-          ),
-          const SizedBox(width: 16.0),
-          Expanded(
-            child: TextField(
-              decoration: InputDecoration(
-                labelText: 'Resultado de prueba de cultivo',
-                border: OutlineInputBorder(),
-              ),
-              onChanged: (value) {
-                // Aquí puedes manejar el valor ingresado
-              },
-            ),
-          ),
-        ],
-      ),
-      const SizedBox(height: 16.0),
-
-      // Resultado de prueba GeneXpert
-      const Text(
-        'Resultado de prueba GeneXpert',
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ),
-      const SizedBox(height: 8.0),
-      TextField(
-        decoration: InputDecoration(
-          labelText: 'Resultado de prueba GeneXpert',
-          border: OutlineInputBorder(),
-        ),
-        onChanged: (value) {
-          // Aquí puedes manejar el valor ingresado
-        },
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
 
   // Método auxiliar para construir opciones de radio
-  Widget _buildRadioOption(String label, String? groupValue, Function(String?) onChanged) {
+  Widget _buildRadioOption(
+      String label, String? groupValue, Function(String?) onChanged) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -1034,7 +1043,6 @@ class _MedicationFormState extends State<MedicationForm> {
       ],
     );
   }
-
 }
 
 void main() => runApp(MaterialApp(
