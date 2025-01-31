@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Para Firestore
+import 'package:firebase_core/firebase_core.dart'; // Para inicializar Firebase
 
 class MedicationForm extends StatefulWidget {
   const MedicationForm({Key? key}) : super(key: key);
@@ -8,7 +10,124 @@ class MedicationForm extends StatefulWidget {
 }
 
 class _MedicationFormState extends State<MedicationForm> {
+  final TextEditingController _nroentrevista = TextEditingController();
+  final TextEditingController _nropaciente = TextEditingController();
+  final TextEditingController _nroveces = TextEditingController();
+  final TextEditingController _centroSaludController = TextEditingController();
+  final TextEditingController _redController = TextEditingController();
+  final TextEditingController _fechaController = TextEditingController();
+  final TextEditingController _nombresController = TextEditingController();
+  final TextEditingController _apellidoPaternoController =
+      TextEditingController();
+  final TextEditingController _apellidoMaternoController =
+      TextEditingController();
+  final TextEditingController _edadController = TextEditingController();
+  final TextEditingController _pesoController = TextEditingController();
+  final TextEditingController _tallaController = TextEditingController();
+  final TextEditingController _imcController = TextEditingController();
+  final TextEditingController _medicinaalternativa = TextEditingController();
+  final TextEditingController _resultadobaciloscopia = TextEditingController();
+  final TextEditingController _resultadocultivo = TextEditingController();
+  final TextEditingController _resultadogenexpert = TextEditingController();
   // Variables para manejar el estado de las selecciones
+  // Añade estas variables al inicio de tu clase state
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final _formKey = GlobalKey<FormState>();
+
+  Future<void> _guardarFormulario() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    try {
+      // Recopilar datos del formulario sociodemográfico
+      Map<String, dynamic> formularioData = {
+        'fecha': FieldValue.serverTimestamp(),
+        'institucion_salud': {
+          'centro_salud': _centroSaludController.text,
+          'red_salud': _redController.text,
+        },
+        'datos_paciente': {
+          'nombres': _nombresController.text,
+          'apellido_paterno': _apellidoPaternoController.text,
+          'apellido_materno': _apellidoMaternoController.text,
+          'grado_instruccion': _gradoInstruccion,
+          'estado_civil': _estadoCivil,
+          'edad': int.tryParse(_edadController.text) ?? 0,
+          'sexo': _pacienteExpuesto,
+          'peso': double.tryParse(_pesoController.text) ?? 0.0,
+          'talla': double.tryParse(_tallaController.text) ?? 0.0,
+          'imc': double.tryParse(_imcController.text) ?? 0.0,
+        },
+        'estilo_vida': {
+          'actividad_fisica': _actividadFisica,
+          'consumo_alcohol': _consumoAlcohol,
+          'fuma': _fuma,
+          'consumo_tabaco': _consumoTabaco,
+          'terapia_alternativa': _terapiaAlternativa,
+          'hierbas_medicinales': _cualesTerapias,
+        },
+        'paciente_expuesto': _pacienteExpuesto,
+      };
+
+      // Añadir datos del test Morisky si es paciente expuesto
+      if (_pacienteExpuesto == 'Expuesto') {
+        formularioData['test_morisky'] = _getMoriskyData();
+      }
+
+      // Guardar en Firestore
+      DocumentReference docRef = await _firestore
+          .collection('formularios_sociodemograficos')
+          .add(formularioData);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Formulario guardado con ID: ${docRef.id}'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // Limpiar formulario después de guardar
+      _limpiarFormulario();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error al guardar: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  List<Map<String, dynamic>> _getMoriskyData() {
+    List<Map<String, dynamic>> moriskyData = [];
+
+    for (int i = 0; i < questions.length; i++) {
+      moriskyData.add({
+        'pregunta': questions[i],
+        'respuesta': responses[i] ?? false,
+        'numero_veces': times[i] ?? '0'
+      });
+    }
+
+    return moriskyData;
+  }
+
+  void _limpiarFormulario() {
+    _formKey.currentState!.reset();
+    setState(() {
+      _gradoInstruccion = null;
+      _estadoCivil = null;
+      _actividadFisica = null;
+      _consumoAlcohol = null;
+      _fuma = null;
+      _consumoTabaco = null;
+      _terapiaAlternativa = null;
+      _cualesTerapias = null;
+      _pacienteExpuesto = null;
+      responses.clear();
+      times.clear();
+    });
+  }
+
   String? _gradoInstruccion;
   String? _estadoCivil;
   String? _actividadFisica;
@@ -58,9 +177,16 @@ class _MedicationFormState extends State<MedicationForm> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Formulario Médico Combinado'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.save),
+            onPressed: _guardarFormulario,
+          ),
+        ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
+      body: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -134,6 +260,7 @@ class _MedicationFormState extends State<MedicationForm> {
             SizedBox(
               width: 150, // Ancho fijo para los cuadrados
               child: TextField(
+                controller: _nroentrevista,
                 decoration: InputDecoration(
                   labelText: 'Entrevista N°',
                   border: OutlineInputBorder(),
@@ -151,6 +278,7 @@ class _MedicationFormState extends State<MedicationForm> {
             SizedBox(
               width: 150, // Ancho fijo para los cuadrados
               child: TextField(
+                controller: _nropaciente,
                 decoration: InputDecoration(
                   labelText: 'Paciente N°',
                   border: OutlineInputBorder(),
@@ -255,6 +383,7 @@ class _MedicationFormState extends State<MedicationForm> {
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: TextField(
+                        controller: _nroveces,
                         decoration: InputDecoration(
                           hintText: 'N° de veces',
                           border: OutlineInputBorder(),
@@ -297,6 +426,7 @@ class _MedicationFormState extends State<MedicationForm> {
           children: [
             Expanded(
               child: TextField(
+                controller: _centroSaludController,
                 decoration: InputDecoration(
                   labelText: 'Centro de salud',
                   border: OutlineInputBorder(),
@@ -306,6 +436,7 @@ class _MedicationFormState extends State<MedicationForm> {
             const SizedBox(width: 8.0),
             Expanded(
               child: TextField(
+                controller: _redController,
                 decoration: InputDecoration(
                   labelText: 'Red',
                   border: OutlineInputBorder(),
@@ -315,6 +446,7 @@ class _MedicationFormState extends State<MedicationForm> {
             const SizedBox(width: 8.0),
             Expanded(
               child: TextField(
+                controller: _fechaController,
                 decoration: InputDecoration(
                   labelText: 'Fecha',
                   border: OutlineInputBorder(),
@@ -337,6 +469,7 @@ class _MedicationFormState extends State<MedicationForm> {
         ),
         const SizedBox(height: 8.0),
         TextField(
+          controller: _nombresController,
           decoration: InputDecoration(
             labelText: 'Nombre(s)',
             border: OutlineInputBorder(),
@@ -347,6 +480,7 @@ class _MedicationFormState extends State<MedicationForm> {
           children: [
             Expanded(
               child: TextField(
+                controller: _apellidoPaternoController,
                 decoration: InputDecoration(
                   labelText: 'Apellido Paterno',
                   border: OutlineInputBorder(),
@@ -356,6 +490,7 @@ class _MedicationFormState extends State<MedicationForm> {
             const SizedBox(width: 8.0),
             Expanded(
               child: TextField(
+                controller: _apellidoMaternoController,
                 decoration: InputDecoration(
                   labelText: 'Apellido Materno',
                   border: OutlineInputBorder(),
@@ -543,6 +678,7 @@ class _MedicationFormState extends State<MedicationForm> {
           children: [
             Expanded(
               child: TextField(
+                controller: _edadController,
                 decoration: InputDecoration(
                   labelText: 'Edad',
                   border: OutlineInputBorder(),
@@ -552,6 +688,7 @@ class _MedicationFormState extends State<MedicationForm> {
             const SizedBox(width: 8.0),
             Expanded(
               child: TextField(
+                controller: _pesoController,
                 decoration: InputDecoration(
                   labelText: 'Peso corporal',
                   border: OutlineInputBorder(),
@@ -561,6 +698,7 @@ class _MedicationFormState extends State<MedicationForm> {
             const SizedBox(width: 8.0),
             Expanded(
               child: TextField(
+                controller: _tallaController,
                 decoration: InputDecoration(
                   labelText: 'Talla',
                   border: OutlineInputBorder(),
@@ -570,6 +708,7 @@ class _MedicationFormState extends State<MedicationForm> {
             const SizedBox(width: 8.0),
             Expanded(
               child: TextField(
+                controller: _imcController,
                 decoration: InputDecoration(
                   labelText: 'IMC',
                   border: OutlineInputBorder(),
@@ -594,7 +733,12 @@ class _MedicationFormState extends State<MedicationForm> {
     List<String> medicamentos = List.from(medicamentosBase);
     final Map<String, Map<String, dynamic>> medicamentoData = {
       for (var med in medicamentosBase)
-        med: {'dosis': null, 'cantidad': null, 'reaccionesAdversas': null},
+        med: {
+          'dosis': 0, // Valor por defecto: 0 (en lugar de null)
+          'cantidad': 0, // Valor por defecto: 0 (en lugar de null)
+          'reaccionesAdversas':
+              '', // Valor por defecto: cadena vacía (en lugar de null)
+        },
     };
 
     bool tratamientoSi = false;
@@ -736,7 +880,7 @@ class _MedicationFormState extends State<MedicationForm> {
                               onChanged: (value) {
                                 setState(() {
                                   medicamentoData[medicamento]!['dosis'] =
-                                      int.tryParse(value);
+                                      int.tryParse(value) ?? 0;
                                 });
                               },
                             ),
@@ -752,7 +896,7 @@ class _MedicationFormState extends State<MedicationForm> {
                               onChanged: (value) {
                                 setState(() {
                                   medicamentoData[medicamento]!['cantidad'] =
-                                      int.tryParse(value);
+                                      int.tryParse(value) ?? 0;
                                 });
                               },
                             ),
@@ -1011,6 +1155,7 @@ class _MedicationFormState extends State<MedicationForm> {
         // Campo de texto para "Cuáles"
         if (_terapiaAlternativa == 'Sí')
           TextField(
+            controller: _medicinaalternativa,
             decoration: InputDecoration(
               labelText: 'Cuáles',
               border: OutlineInputBorder(),
@@ -1034,6 +1179,7 @@ class _MedicationFormState extends State<MedicationForm> {
           children: [
             Expanded(
               child: TextField(
+                controller: _resultadobaciloscopia,
                 decoration: InputDecoration(
                   labelText: 'Resultado de prueba Basiloscopia',
                   border: OutlineInputBorder(),
@@ -1046,6 +1192,7 @@ class _MedicationFormState extends State<MedicationForm> {
             const SizedBox(width: 16.0),
             Expanded(
               child: TextField(
+                controller: _resultadocultivo,
                 decoration: InputDecoration(
                   labelText: 'Resultado de prueba de cultivo',
                   border: OutlineInputBorder(),
@@ -1066,6 +1213,7 @@ class _MedicationFormState extends State<MedicationForm> {
         ),
         const SizedBox(height: 8.0),
         TextField(
+          controller: _resultadogenexpert,
           decoration: InputDecoration(
             labelText: 'Resultado de prueba GeneXpert',
             border: OutlineInputBorder(),
