@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart'; // Importa firebase_core
 import 'firebase_options.dart'; // Importa las opciones de Firebase generadas
 import 'medication_form.dart'; // Importa tu formulario médico
+import 'medication_screen.dart';
 
 void main() async {
   // Asegura que Flutter esté inicializado
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home:
-          const MedicationForm(), // Usa tu formulario médico como pantalla principal
+          const MedicationScreen(), // Usa tu formulario médico como pantalla principal
     );
   }
 }
