@@ -12,7 +12,6 @@ class MedicationForm extends StatefulWidget {
 class _MedicationFormState extends State<MedicationForm> {
   final TextEditingController _nroentrevista = TextEditingController();
   final TextEditingController _nropaciente = TextEditingController();
-  final TextEditingController _nroveces = TextEditingController();
   final TextEditingController _centroSaludController = TextEditingController();
   final TextEditingController _redController = TextEditingController();
   final TextEditingController _fechaController = TextEditingController();
@@ -40,6 +39,8 @@ class _MedicationFormState extends State<MedicationForm> {
     try {
       // Recopilar datos del formulario sociodemográfico
       Map<String, dynamic> formularioData = {
+        'nro_paciente': _nropaciente.text,
+        'nro_entrevista': _nroentrevista.text,
         'fecha': FieldValue.serverTimestamp(),
         'institucion_salud': {
           'centro_salud': _centroSaludController.text,
@@ -52,7 +53,7 @@ class _MedicationFormState extends State<MedicationForm> {
           'grado_instruccion': _gradoInstruccion,
           'estado_civil': _estadoCivil,
           'edad': int.tryParse(_edadController.text) ?? 0,
-          'sexo': _pacienteExpuesto,
+          'sexo': _genero,
           'peso': double.tryParse(_pesoController.text) ?? 0.0,
           'talla': double.tryParse(_tallaController.text) ?? 0.0,
           'imc': double.tryParse(_imcController.text) ?? 0.0,
@@ -136,6 +137,7 @@ class _MedicationFormState extends State<MedicationForm> {
   String? _consumoTabaco;
   String? _terapiaAlternativa;
   String? _cualesTerapias;
+  String? _genero;
   final Map<int, bool?> responses = {};
   final Map<int, String?> times =
       {}; // Nuevo mapa para almacenar el número de veces
@@ -383,7 +385,6 @@ class _MedicationFormState extends State<MedicationForm> {
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: TextField(
-                        controller: _nroveces,
                         decoration: InputDecoration(
                           hintText: 'N° de veces',
                           border: OutlineInputBorder(),
@@ -677,42 +678,65 @@ class _MedicationFormState extends State<MedicationForm> {
         Row(
           children: [
             Expanded(
-              child: TextField(
+              flex: 2,
+              child: TextFormField(
                 controller: _edadController,
+                keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   labelText: 'Edad',
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
+                  suffixText: 'años',
                 ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) return 'Ingrese la edad';
+                  if (int.tryParse(value) == null) return 'Edad inválida';
+                  return null;
+                },
               ),
             ),
-            const SizedBox(width: 8.0),
+            const SizedBox(width: 12),
             Expanded(
-              child: TextField(
-                controller: _pesoController,
-                decoration: InputDecoration(
-                  labelText: 'Peso corporal',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-            const SizedBox(width: 8.0),
-            Expanded(
-              child: TextField(
-                controller: _tallaController,
-                decoration: InputDecoration(
-                  labelText: 'Talla',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-            const SizedBox(width: 8.0),
-            Expanded(
-              child: TextField(
-                controller: _imcController,
-                decoration: InputDecoration(
-                  labelText: 'IMC',
-                  border: OutlineInputBorder(),
-                ),
+              flex: 3,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Sexo',
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: RadioListTile<String>(
+                          title: const Text('Masculino'),
+                          value: 'Masculino',
+                          groupValue: _genero,
+                          onChanged: (value) {
+                            setState(() {
+                              _genero = value;
+                            });
+                          },
+                          dense: true,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ),
+                      Expanded(
+                        child: RadioListTile<String>(
+                          title: const Text('Femenino'),
+                          value: 'Femenino',
+                          groupValue: _genero,
+                          onChanged: (value) {
+                            setState(() {
+                              _genero = value;
+                            });
+                          },
+                          dense: true,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],
