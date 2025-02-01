@@ -180,7 +180,59 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 }
+class FormularioDetalleScreen extends StatelessWidget {
+  final Map<String, dynamic> formulario;
 
+  const FormularioDetalleScreen({Key? key, required this.formulario}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Detalles del Formulario')),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Entrevista N°: ${formulario['nro_entrevista']}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Text('Fecha: ${formulario['fecha'].toDate().toString()}', style: const TextStyle(fontSize: 16)),
+            const SizedBox(height: 16),
+            const Text('Datos del Paciente:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text('Nombre: ${formulario['datos_paciente']['nombres']}'),
+            Text('Apellido Paterno: ${formulario['datos_paciente']['apellido_paterno']}'),
+            Text('Apellido Materno: ${formulario['datos_paciente']['apellido_materno']}'),
+            Text('Edad: ${formulario['datos_paciente']['edad']}'),
+            Text('Sexo: ${formulario['datos_paciente']['sexo']}'),
+            const SizedBox(height: 16),
+            const Text('Institución de Salud:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text('Centro de Salud: ${formulario['institucion_salud']['centro_salud']}'),
+            Text('Red de Salud: ${formulario['institucion_salud']['red_salud']}'),
+            const SizedBox(height: 16),
+            const Text('Estilo de Vida:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text('Actividad Física: ${formulario['estilo_vida']['actividad_fisica']}'),
+            Text('Consumo de Alcohol: ${formulario['estilo_vida']['consumo_alcohol']}'),
+            Text('Fuma: ${formulario['estilo_vida']['fuma']}'),
+            Text('Consumo de Tabaco: ${formulario['estilo_vida']['consumo_tabaco']}'),
+            Text('Terapia Alternativa: ${formulario['estilo_vida']['terapia_alternativa']}'),
+            Text('Hierbas Medicinales: ${formulario['estilo_vida']['hierbas_medicinales']}'),
+            const SizedBox(height: 16),
+            const Text('Test de Morisky:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            if (formulario['test_morisky'] != null)
+              ...formulario['test_morisky'].map<Widget>((pregunta) {
+                return ListTile(
+                  title: Text(pregunta['pregunta']),
+                  subtitle: Text('Respuesta: ${pregunta['respuesta'] ? 'Sí' : 'No'}, Veces: ${pregunta['numero_veces']}'),
+                );
+              }).toList(),
+            if (formulario['test_morisky'] == null)
+              const Text('No hay datos del test de Morisky.'),
+          ],
+        ),
+      ),
+    );
+  }
+}
 class PatientDetailScreen extends StatelessWidget {
   final String patientId;
 
@@ -221,7 +273,7 @@ class PatientDetailScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text('Sexo: ${datosPaciente['sexo']}', style: const TextStyle(fontSize: 18)),
                 const SizedBox(height: 20),
-                const Text('Historial de Formularios:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const Text('Historial:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 StreamBuilder<QuerySnapshot>(
                   stream: FirebaseFirestore.instance
                       .collection('form_soc')
@@ -250,9 +302,20 @@ class PatientDetailScreen extends StatelessWidget {
                       itemCount: historial.length,
                       itemBuilder: (context, index) {
                         var formulario = historial[index].data() as Map<String, dynamic>;
-                        return ListTile(
-                          title: Text('Entrevista N°: ${formulario['nro_entrevista']}'),
-                          subtitle: Text('Estado: ${formulario['paciente_expuesto']}'),
+                        return Card(
+                          margin: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: ListTile(
+                            title: Text('Entrevista N°: ${formulario['nro_entrevista']}'),
+                            subtitle: Text('Fecha: ${formulario['fecha'].toDate().toString()}'),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => FormularioDetalleScreen(formulario: formulario),
+                                ),
+                              );
+                            },
+                          ),
                         );
                       },
                     );
