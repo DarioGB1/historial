@@ -21,28 +21,65 @@ class _SearchScreenState extends State<SearchScreen> {
     _firestore = FirebaseFirestore.instance;
   }
 
-  // Método para obtener pacientes desde Firebase
+  // Método para obtener pacientes desde Firebase con filtro
   Future<List<Map<String, dynamic>>> getFilteredPatients() async {
-    Query query = _firestore.collection('formularios_sociodemograficos');
+    CollectionReference collectionRef = _firestore.collection('form_soc');
 
     if (searchTerm.isNotEmpty) {
-      query = query.where('nro_paciente', isEqualTo: searchTerm);
+      var docSnapshot = await collectionRef.doc(searchTerm).get();
+      if (docSnapshot.exists) {
+        var historialSnapshot = await collectionRef
+            .doc(searchTerm)
+            .collection('historial')
+            .orderBy('fecha', descending: true)
+            .limit(1)
+            .get();
+
+        var estado = 'Desconocido';
+        if (historialSnapshot.docs.isNotEmpty) {
+          estado = historialSnapshot.docs.first['paciente_expuesto'] ?? 'Desconocido';
+        }
+
+        if (filter == 'Todos' || estado == filter) {
+          var data = docSnapshot.data() as Map<String, dynamic>;
+          return [
+            {
+              'nro_paciente': docSnapshot.id,
+              'nombre': data['datos_paciente']?['nombres'] ?? 'Sin nombre',
+              'estado': estado,
+            }
+          ];
+        }
+      }
+      return [];
     }
 
-    if (filter != 'Todos') {
-      query = query.where('paciente_expuesto', isEqualTo: filter);
+    var snapshot = await collectionRef.get();
+    var pacientes = <Map<String, dynamic>>[];
+
+    for (var doc in snapshot.docs) {
+      var historialSnapshot = await doc.reference
+          .collection('historial')
+          .orderBy('fecha', descending: true)
+          .limit(1)
+          .get();
+
+      var estado = 'Desconocido';
+      if (historialSnapshot.docs.isNotEmpty) {
+        estado = historialSnapshot.docs.first['paciente_expuesto'] ?? 'Desconocido';
+      }
+
+      if (filter == 'Todos' || estado == filter) {
+        var data = doc.data() as Map<String, dynamic>;
+        pacientes.add({
+          'nro_paciente': doc.id,
+          'nombre': data['datos_paciente']?['nombres'] ?? 'Sin nombre',
+          'estado': estado,
+        });
+      }
     }
 
-    var snapshot = await query.get();
-    return snapshot.docs.map((doc) {
-      var data = doc.data() as Map<String, dynamic>;
-      
-      return {
-        'nro_paciente': data['nro_paciente'] ?? '',
-        'nombre': data['datos_paciente']?['nombres'] ?? 'Sin nombre',
-        'estado': data['paciente_expuesto'] ?? 'Desconocido',
-      };
-    }).toList();
+    return pacientes;
   }
 
   @override
@@ -126,7 +163,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => PatientDetailScreen(patient: patient),
+                                builder: (context) => PatientDetailScreen(patientId: patient['nro_paciente']),
                               ),
                             );
                           },
@@ -145,28 +182,87 @@ class _SearchScreenState extends State<SearchScreen> {
 }
 
 class PatientDetailScreen extends StatelessWidget {
-  final Map<String, dynamic> patient;
+  final String patientId;
 
-  const PatientDetailScreen({Key? key, required this.patient}) : super(key: key);
+  const PatientDetailScreen({Key? key, required this.patientId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Detalles del Paciente')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Nro. Paciente: ${patient['nro_paciente']}', style: const TextStyle(fontSize: 18)),
-            const SizedBox(height: 8),
-            Text('Nombre: ${patient['nombre']}', style: const TextStyle(fontSize: 18)),
-            const SizedBox(height: 8),
-            Text('Estado: ${patient['estado']}', style: const TextStyle(fontSize: 18)),
-          ],
-        ),
+      body: FutureBuilder<DocumentSnapshot>(
+        future: FirebaseFirestore.instance.collection('form_soc').doc(patientId).get(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError || !snapshot.hasData || !snapshot.data!.exists) {
+            return const Center(child: Text('Error al cargar los datos del paciente'));
+          }
+
+          var patientData = snapshot.data!.data() as Map<String, dynamic>;
+          var datosPaciente = patientData['datos_paciente'] as Map<String, dynamic>;
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Nro. Paciente: $patientId', style: const TextStyle(fontSize: 18)),
+                const SizedBox(height: 8),
+                Text('Nombre: ${datosPaciente['nombres']}', style: const TextStyle(fontSize: 18)),
+                const SizedBox(height: 8),
+                Text('Apellido Paterno: ${datosPaciente['apellido_paterno']}', style: const TextStyle(fontSize: 18)),
+                const SizedBox(height: 8),
+                Text('Apellido Materno: ${datosPaciente['apellido_materno']}', style: const TextStyle(fontSize: 18)),
+                const SizedBox(height: 8),
+                Text('Edad: ${datosPaciente['edad']}', style: const TextStyle(fontSize: 18)),
+                const SizedBox(height: 8),
+                Text('Sexo: ${datosPaciente['sexo']}', style: const TextStyle(fontSize: 18)),
+                const SizedBox(height: 20),
+                const Text('Historial de Formularios:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance
+                      .collection('form_soc')
+                      .doc(patientId)
+                      .collection('historial')
+                      .orderBy('fecha', descending: true)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    if (snapshot.hasError || !snapshot.hasData) {
+                      return const Center(child: Text('Error al cargar el historial'));
+                    }
+
+                    var historial = snapshot.data!.docs;
+
+                    if (historial.isEmpty) {
+                      return const Center(child: Text('No hay formularios en el historial'));
+                    }
+
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: historial.length,
+                      itemBuilder: (context, index) {
+                        var formulario = historial[index].data() as Map<String, dynamic>;
+                        return ListTile(
+                          title: Text('Entrevista N°: ${formulario['nro_entrevista']}'),
+                          subtitle: Text('Estado: ${formulario['paciente_expuesto']}'),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
 }
-//Les mostraremos ,Les mostraremos a todos 
