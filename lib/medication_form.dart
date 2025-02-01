@@ -34,69 +34,82 @@ class _MedicationFormState extends State<MedicationForm> {
   final _formKey = GlobalKey<FormState>();
 
   Future<void> _guardarFormulario() async {
-    if (!_formKey.currentState!.validate()) return;
+  if (!_formKey.currentState!.validate()) return;
 
-    try {
-      // Recopilar datos del formulario sociodemográfico
-      Map<String, dynamic> formularioData = {
-        'nro_paciente': _nropaciente.text,
-        'nro_entrevista': _nroentrevista.text,
-        'fecha': FieldValue.serverTimestamp(),
-        'institucion_salud': {
-          'centro_salud': _centroSaludController.text,
-          'red_salud': _redController.text,
-        },
-        'datos_paciente': {
-          'nombres': _nombresController.text,
-          'apellido_paterno': _apellidoPaternoController.text,
-          'apellido_materno': _apellidoMaternoController.text,
-          'grado_instruccion': _gradoInstruccion,
-          'estado_civil': _estadoCivil,
-          'edad': int.tryParse(_edadController.text) ?? 0,
-          'sexo': _genero,
-          'peso': double.tryParse(_pesoController.text) ?? 0.0,
-          'talla': double.tryParse(_tallaController.text) ?? 0.0,
-          'imc': double.tryParse(_imcController.text) ?? 0.0,
-        },
-        'estilo_vida': {
-          'actividad_fisica': _actividadFisica,
-          'consumo_alcohol': _consumoAlcohol,
-          'fuma': _fuma,
-          'consumo_tabaco': _consumoTabaco,
-          'terapia_alternativa': _terapiaAlternativa,
-          'hierbas_medicinales': _cualesTerapias,
-        },
-        'paciente_expuesto': _pacienteExpuesto,
-      };
+  try {
+    // Recopilar datos del formulario
+    Map<String, dynamic> formularioData = {
+      'nro_entrevista': _nroentrevista.text,
+      'fecha': FieldValue.serverTimestamp(),
+      'institucion_salud': {
+        'centro_salud': _centroSaludController.text,
+        'red_salud': _redController.text,
+      },
+      'datos_paciente': {
+        'nombres': _nombresController.text,
+        'apellido_paterno': _apellidoPaternoController.text,
+        'apellido_materno': _apellidoMaternoController.text,
+        'grado_instruccion': _gradoInstruccion,
+        'estado_civil': _estadoCivil,
+        'edad': int.tryParse(_edadController.text) ?? 0,
+        'sexo': _genero,
+        'peso': double.tryParse(_pesoController.text) ?? 0.0,
+        'talla': double.tryParse(_tallaController.text) ?? 0.0,
+        'imc': double.tryParse(_imcController.text) ?? 0.0,
+      },
+      'estilo_vida': {
+        'actividad_fisica': _actividadFisica,
+        'consumo_alcohol': _consumoAlcohol,
+        'fuma': _fuma,
+        'consumo_tabaco': _consumoTabaco,
+        'terapia_alternativa': _terapiaAlternativa,
+        'hierbas_medicinales': _cualesTerapias,
+      },
+      'paciente_expuesto': _pacienteExpuesto,
+    };
 
-      // Añadir datos del test Morisky si es paciente expuesto
-      if (_pacienteExpuesto == 'Expuesto') {
-        formularioData['test_morisky'] = _getMoriskyData();
-      }
-
-      // Guardar en Firestore
-      DocumentReference docRef = await _firestore
-          .collection('formularios_sociodemograficos')
-          .add(formularioData);
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Formulario guardado con ID: ${docRef.id}'),
-          backgroundColor: Colors.green,
-        ),
-      );
-
-      // Limpiar formulario después de guardar
-      _limpiarFormulario();
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error al guardar: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+    // Añadir datos del test Morisky si es paciente expuesto
+    if (_pacienteExpuesto == 'Expuesto') {
+      formularioData['test_morisky'] = _getMoriskyData();
     }
+
+    // Referencia al documento del paciente
+    DocumentReference pacienteRef = _firestore
+        .collection('form_soc')
+        .doc(_nropaciente.text); // Usar nro_paciente como ID del documento
+
+    // Verificar si el paciente ya existe
+    DocumentSnapshot pacienteSnapshot = await pacienteRef.get();
+
+    if (!pacienteSnapshot.exists) {
+      // Si el paciente no existe, crear el documento con datos básicos
+      await pacienteRef.set({
+        'nro_paciente': _nropaciente.text,
+        'datos_paciente': formularioData['datos_paciente'], // Datos generales
+      });
+    }
+
+    // Agregar el formulario a la subcolección 'historial'
+    await pacienteRef.collection('historial').add(formularioData);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Formulario guardado en el historial del paciente.'),
+        backgroundColor: Colors.green,
+      ),
+    );
+
+    // Limpiar formulario después de guardar
+    _limpiarFormulario();
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Error al guardar: $e'),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
+}
 
   List<Map<String, dynamic>> _getMoriskyData() {
     List<Map<String, dynamic>> moriskyData = [];
