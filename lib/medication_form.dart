@@ -223,105 +223,130 @@ class _MedicationFormState extends State<MedicationForm> {
   }
 
   Widget _buildFormularioSociodemografico() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Fila para el título, radio buttons y los campos de Entrevista N° y Paciente N°
-        Row(
-          children: [
-            const Text(
-              'ANEXO 3 | Formulario sociodemográfico',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const Spacer(), // Espacio flexible para empujar los campos a la derecha
-
-            // Radio buttons para Paciente Expuesto/No Expuesto
-            Row(
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth < 600) { // Modo móvil
+            return Column(
               children: [
-                Row(
-                  children: [
-                    Radio<String>(
-                      value: 'Expuesto',
-                      groupValue: _pacienteExpuesto,
-                      onChanged: (value) {
-                        setState(() {
-                          _pacienteExpuesto = value;
-                        });
-                      },
-                    ),
-                    const Text('Expuesto'),
-                  ],
+                // Título
+                const Text(
+                  'ANEXO 3 | Formulario sociodemográfico',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
-                Row(
-                  children: [
-                    Radio<String>(
-                      value: 'No Expuesto',
-                      groupValue: _pacienteExpuesto,
-                      onChanged: (value) {
-                        setState(() {
-                          _pacienteExpuesto = value;
-                        });
-                      },
-                    ),
-                    const Text('No Expuesto'),
-                  ],
+                const SizedBox(height: 16),
+                
+                // Radio buttons
+                _buildRadioButtonsResponsive(),
+                const SizedBox(height: 16),
+                
+                // Campos de entrada
+                _buildNumberInputsResponsive(),
+              ],
+            );
+          } else { // Modo escritorio/tablet
+            return Row(
+              children: [
+                // Título
+                const Expanded(
+                  flex: 2,
+                  child: Text(
+                    'ANEXO 3 | Formulario sociodemográfico',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                
+                // Radio buttons
+                Expanded(
+                  flex: 3,
+                  child: _buildRadioButtonsResponsive(),
+                ),
+                
+                // Campos de entrada
+                Expanded(
+                  flex: 2,
+                  child: _buildNumberInputsResponsive(),
                 ),
               ],
-            ),
-            const SizedBox(
-                width: 16), // Espacio entre los radio buttons y los campos
+            );
+          }
+        },
+      ),
+      const SizedBox(height: 16),
 
-            // Campo de Entrevista N°
-            SizedBox(
-              width: 150, // Ancho fijo para los cuadrados
-              child: TextField(
-                controller: _nroentrevista,
-                decoration: InputDecoration(
-                  labelText: 'Entrevista N°',
-                  border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(
-                      vertical: 8, horizontal: 8), // Ajustar el padding
-                ),
-                onChanged: (value) {
-                  // Aquí puedes manejar el valor ingresado
-                },
-              ),
-            ),
-            const SizedBox(width: 16), // Espacio entre los campos
+      // Resto del formulario
+      _seccionReferenciaInstitucion(),
+      const SizedBox(height: 16),
+      _seccionDatosPaciente(),
+      const SizedBox(height: 16),
+      _seccionDatosFisicos(),
+      const SizedBox(height: 16),
+      _seccionCriteriosDeInclusion(),
+      const SizedBox(height: 16),
+      _seccionEstiloDeVida(),
+    ],
+  );
+}
 
-            // Campo de Paciente N°
-            SizedBox(
-              width: 150, // Ancho fijo para los cuadrados
-              child: TextField(
-                controller: _nropaciente,
-                decoration: InputDecoration(
-                  labelText: 'Paciente N°',
-                  border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(
-                      vertical: 8, horizontal: 8), // Ajustar el padding
-                ),
-                onChanged: (value) {
-                  // Aquí puedes manejar el valor ingresado
-                },
-              ),
-            ),
-          ],
+Widget _buildRadioButtonsResponsive() {
+  return Wrap(
+    spacing: 8,
+    children: [
+      Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Radio<String>(
+            value: 'Expuesto',
+            groupValue: _pacienteExpuesto,
+            onChanged: (value) => setState(() => _pacienteExpuesto = value),
+          ),
+          const Text('Expuesto'),
+        ],
+      ),
+      Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Radio<String>(
+            value: 'No Expuesto',
+            groupValue: _pacienteExpuesto,
+            onChanged: (value) => setState(() => _pacienteExpuesto = value),
+          ),
+          const Text('No Expuesto'),
+        ],
+      ),
+    ],
+  );
+}
+
+Widget _buildNumberInputsResponsive() {
+  return Row(
+    children: [
+      Expanded(
+        child: TextField(
+          controller: _nroentrevista,
+          decoration: const InputDecoration(
+            labelText: 'Entrevista N°',
+            border: OutlineInputBorder(),
+            contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+          ),
         ),
-        const SizedBox(height: 16),
-
-        // Resto del formulario
-        _seccionReferenciaInstitucion(),
-        const SizedBox(height: 16),
-        _seccionDatosPaciente(),
-        const SizedBox(height: 16),
-        _seccionDatosFisicos(),
-        const SizedBox(height: 16),
-        _seccionCriteriosDeInclusion(),
-        const SizedBox(height: 16),
-        _seccionEstiloDeVida(),
-      ],
-    );
-  }
+      ),
+      const SizedBox(width: 8),
+      Expanded(
+        child: TextField(
+          controller: _nropaciente,
+          decoration: const InputDecoration(
+            labelText: 'Paciente N°',
+            border: OutlineInputBorder(),
+            contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+          ),
+        ),
+      ),
+    ],
+  );
+}
 
   Widget _buildMedicationForm() {
     return Column(
@@ -484,195 +509,111 @@ class _MedicationFormState extends State<MedicationForm> {
         const SizedBox(height: 8.0),
         TextField(
           controller: _nombresController,
-          decoration: InputDecoration(
+          decoration: const InputDecoration(
             labelText: 'Nombre(s)',
             border: OutlineInputBorder(),
+            contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
           ),
         ),
-        const SizedBox(height: 8.0),
-        Row(
+        const SizedBox(height: 12),
+        
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return constraints.maxWidth < 600
+                ? Column(
+                    children: [
+                      _buildApellidoField(_apellidoPaternoController, 'Apellido Paterno'),
+                      const SizedBox(height: 12),
+                      _buildApellidoField(_apellidoMaternoController, 'Apellido Materno'),
+                    ],
+                  )
+                : Row(
+                    children: [
+                      Expanded(child: _buildApellidoField(_apellidoPaternoController, 'Apellido Paterno')),
+                      const SizedBox(width: 16),
+                      Expanded(child: _buildApellidoField(_apellidoMaternoController, 'Apellido Materno')),
+                    ],
+                  );
+          },
+        ),
+        const SizedBox(height: 20),
+        
+        LayoutBuilder(
+          builder: (context, constraints) {
+            return constraints.maxWidth < 600
+                ? Column(
+                    children: [
+                      _buildGradoInstruccion(),
+                      const SizedBox(height: 24),
+                      _buildEstadoCivil(),
+                    ],
+                  )
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(child: _buildGradoInstruccion()),
+                      const SizedBox(width: 32),
+                      Expanded(child: _buildEstadoCivil()),
+                    ],
+                  );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildApellidoField(TextEditingController controller, String label) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+        contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      ),
+    );
+  }
+
+  Widget _buildGradoInstruccion() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Grado de instrucción',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 10,
+          runSpacing: 8,
           children: [
-            Expanded(
-              child: TextField(
-                controller: _apellidoPaternoController,
-                decoration: InputDecoration(
-                  labelText: 'Apellido Paterno',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-            const SizedBox(width: 8.0),
-            Expanded(
-              child: TextField(
-                controller: _apellidoMaternoController,
-                decoration: InputDecoration(
-                  labelText: 'Apellido Materno',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
+            _buildRadioOption('Primaria', _gradoInstruccion, (v) => setState(() => _gradoInstruccion = v)),
+            _buildRadioOption('Secundaria', _gradoInstruccion, (v) => setState(() => _gradoInstruccion = v)),
+            _buildRadioOption('Superior', _gradoInstruccion, (v) => setState(() => _gradoInstruccion = v)),
+            _buildRadioOption('Posgrado', _gradoInstruccion, (v) => setState(() => _gradoInstruccion = v)),
           ],
         ),
-        const SizedBox(height: 8.0),
-        Row(
+      ],
+    );
+  }
+
+  Widget _buildEstadoCivil() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Estado civil',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 10,
+          runSpacing: 8,
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Grado de instrucción',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Row(
-                    children: [
-                      Row(
-                        children: [
-                          Radio<String>(
-                            value: 'Primaria',
-                            groupValue: _gradoInstruccion,
-                            onChanged: (value) {
-                              setState(() {
-                                _gradoInstruccion = value;
-                              });
-                            },
-                          ),
-                          const Text('Primaria'),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Radio<String>(
-                            value: 'Secundaria',
-                            groupValue: _gradoInstruccion,
-                            onChanged: (value) {
-                              setState(() {
-                                _gradoInstruccion = value;
-                              });
-                            },
-                          ),
-                          const Text('Secundaria'),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Radio<String>(
-                            value: 'Superior',
-                            groupValue: _gradoInstruccion,
-                            onChanged: (value) {
-                              setState(() {
-                                _gradoInstruccion = value;
-                              });
-                            },
-                          ),
-                          const Text('Superior'),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Radio<String>(
-                            value: 'Posgrado',
-                            groupValue: _gradoInstruccion,
-                            onChanged: (value) {
-                              setState(() {
-                                _gradoInstruccion = value;
-                              });
-                            },
-                          ),
-                          const Text('Posgrado'),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 8.0),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Estado civil',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Row(
-                    children: [
-                      Row(
-                        children: [
-                          Radio<String>(
-                            value: 'Soltero',
-                            groupValue: _estadoCivil,
-                            onChanged: (value) {
-                              setState(() {
-                                _estadoCivil = value;
-                              });
-                            },
-                          ),
-                          const Text('Soltero'),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Radio<String>(
-                            value: 'Casado',
-                            groupValue: _estadoCivil,
-                            onChanged: (value) {
-                              setState(() {
-                                _estadoCivil = value;
-                              });
-                            },
-                          ),
-                          const Text('Casado'),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Radio<String>(
-                            value: 'Viudo',
-                            groupValue: _estadoCivil,
-                            onChanged: (value) {
-                              setState(() {
-                                _estadoCivil = value;
-                              });
-                            },
-                          ),
-                          const Text('Viudo'),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Radio<String>(
-                            value: 'Divorciado',
-                            groupValue: _estadoCivil,
-                            onChanged: (value) {
-                              setState(() {
-                                _estadoCivil = value;
-                              });
-                            },
-                          ),
-                          const Text('Divorciado'),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Radio<String>(
-                            value: 'Concubinato',
-                            groupValue: _estadoCivil,
-                            onChanged: (value) {
-                              setState(() {
-                                _estadoCivil = value;
-                              });
-                            },
-                          ),
-                          const Text('Concubinato'),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+            _buildRadioOption('Soltero', _estadoCivil, (v) => setState(() => _estadoCivil = v)),
+            _buildRadioOption('Casado', _estadoCivil, (v) => setState(() => _estadoCivil = v)),
+            _buildRadioOption('Viudo', _estadoCivil, (v) => setState(() => _estadoCivil = v)),
+            _buildRadioOption('Divorciado', _estadoCivil, (v) => setState(() => _estadoCivil = v)),
+            _buildRadioOption('Concubinato', _estadoCivil, (v) => setState(() => _estadoCivil = v)),
           ],
         ),
       ],
@@ -1016,256 +957,155 @@ class _MedicationFormState extends State<MedicationForm> {
   }
 
   Widget _seccionEstiloDeVida() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Estilo de vida',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8.0),
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Text(
+        'Estilo de vida',
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+      ),
+      const SizedBox(height: 12),
 
-        // Actividad Física
-        const Text(
-          'Actividad física',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        Row(
-          children: [
-            _buildRadioOption('Diaria', _actividadFisica, (value) {
-              setState(() {
-                _actividadFisica = value;
-              });
-            }),
-            _buildRadioOption('2-3 veces por semana', _actividadFisica,
-                (value) {
-              setState(() {
-                _actividadFisica = value;
-              });
-            }),
-            _buildRadioOption('1 vez por semana', _actividadFisica, (value) {
-              setState(() {
-                _actividadFisica = value;
-              });
-            }),
-            _buildRadioOption('Al menos una vez al mes', _actividadFisica,
-                (value) {
-              setState(() {
-                _actividadFisica = value;
-              });
-            }),
-            _buildRadioOption('Nunca', _actividadFisica, (value) {
-              setState(() {
-                _actividadFisica = value;
-              });
-            }),
-          ],
-        ),
-        const SizedBox(height: 16.0),
+      // Actividad Física
+      const Text(
+        'Actividad física',
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      Wrap(
+        spacing: 10,
+        runSpacing: 8,
+        children: [
+          _buildRadioOption('Diaria', _actividadFisica, (v) => setState(() => _actividadFisica = v)),
+          _buildRadioOption('2-3 veces por semana', _actividadFisica, (v) => setState(() => _actividadFisica = v)),
+          _buildRadioOption('1 vez por semana', _actividadFisica, (v) => setState(() => _actividadFisica = v)),
+          _buildRadioOption('Al menos una vez al mes', _actividadFisica, (v) => setState(() => _actividadFisica = v)),
+          _buildRadioOption('Nunca', _actividadFisica, (v) => setState(() => _actividadFisica = v)),
+        ],
+      ),
+      const SizedBox(height: 16),
 
-        // Consumo de Alcohol
-        const Text(
-          'Consumo de alcohol',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        Row(
-          children: [
-            _buildRadioOption('Diaria', _consumoAlcohol, (value) {
-              setState(() {
-                _consumoAlcohol = value;
-              });
-            }),
-            _buildRadioOption('>2 veces por semana', _consumoAlcohol, (value) {
-              setState(() {
-                _consumoAlcohol = value;
-              });
-            }),
-            _buildRadioOption('Al menos 1 vez por semana', _consumoAlcohol,
-                (value) {
-              setState(() {
-                _consumoAlcohol = value;
-              });
-            }),
-            _buildRadioOption('>2 veces al mes', _consumoAlcohol, (value) {
-              setState(() {
-                _consumoAlcohol = value;
-              });
-            }),
-            _buildRadioOption('<1 vez al mes', _consumoAlcohol, (value) {
-              setState(() {
-                _consumoAlcohol = value;
-              });
-            }),
-            _buildRadioOption('Nunca', _consumoAlcohol, (value) {
-              setState(() {
-                _consumoAlcohol = value;
-              });
-            }),
-          ],
-        ),
-        const SizedBox(height: 16.0),
+      // Consumo de Alcohol
+      const Text(
+        'Consumo de alcohol',
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      Wrap(
+        spacing: 10,
+        runSpacing: 8,
+        children: [
+          _buildRadioOption('Diaria', _consumoAlcohol, (v) => setState(() => _consumoAlcohol = v)),
+          _buildRadioOption('>2 veces por semana', _consumoAlcohol, (v) => setState(() => _consumoAlcohol = v)),
+          _buildRadioOption('Al menos 1 vez por semana', _consumoAlcohol, (v) => setState(() => _consumoAlcohol = v)),
+          _buildRadioOption('>2 veces al mes', _consumoAlcohol, (v) => setState(() => _consumoAlcohol = v)),
+          _buildRadioOption('<1 vez al mes', _consumoAlcohol, (v) => setState(() => _consumoAlcohol = v)),
+          _buildRadioOption('Nunca', _consumoAlcohol, (v) => setState(() => _consumoAlcohol = v)),
+        ],
+      ),
+      const SizedBox(height: 16),
 
-        // Fuma
-        const Text(
-          'Fuma',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        Row(
-          children: [
-            _buildRadioOption('Sí', _fuma, (value) {
-              setState(() {
-                _fuma = value;
-              });
-            }),
-            _buildRadioOption('No', _fuma, (value) {
-              setState(() {
-                _fuma = value;
-              });
-            }),
-          ],
-        ),
-        const SizedBox(height: 16.0),
+      // Fuma
+      const Text(
+        'Fuma',
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      Wrap(
+        spacing: 20,
+        children: [
+          _buildRadioOption('Sí', _fuma, (v) => setState(() => _fuma = v)),
+          _buildRadioOption('No', _fuma, (v) => setState(() => _fuma = v)),
+        ],
+      ),
+      const SizedBox(height: 16),
 
-        // Consumo de Tabaco
-        const Text(
-          'Consumo de tabaco',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        Row(
-          children: [
-            _buildRadioOption('Diaria', _consumoTabaco, (value) {
-              setState(() {
-                _consumoTabaco = value;
-              });
-            }),
-            _buildRadioOption('>2 veces por semana', _consumoTabaco, (value) {
-              setState(() {
-                _consumoTabaco = value;
-              });
-            }),
-            _buildRadioOption('Al menos 1 vez por semana', _consumoTabaco,
-                (value) {
-              setState(() {
-                _consumoTabaco = value;
-              });
-            }),
-            _buildRadioOption('>2 veces al mes', _consumoTabaco, (value) {
-              setState(() {
-                _consumoTabaco = value;
-              });
-            }),
-            _buildRadioOption('<1 vez al mes', _consumoTabaco, (value) {
-              setState(() {
-                _consumoTabaco = value;
-              });
-            }),
-            _buildRadioOption('Nunca', _consumoTabaco, (value) {
-              setState(() {
-                _consumoTabaco = value;
-              });
-            }),
-          ],
-        ),
-        const SizedBox(height: 16.0),
+      // Consumo de Tabaco
+      const Text(
+        'Consumo de tabaco',
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      Wrap(
+        spacing: 10,
+        runSpacing: 8,
+        children: [
+          _buildRadioOption('Diaria', _consumoTabaco, (v) => setState(() => _consumoTabaco = v)),
+          _buildRadioOption('>2 veces por semana', _consumoTabaco, (v) => setState(() => _consumoTabaco = v)),
+          _buildRadioOption('Al menos 1 vez por semana', _consumoTabaco, (v) => setState(() => _consumoTabaco = v)),
+          _buildRadioOption('>2 veces al mes', _consumoTabaco, (v) => setState(() => _consumoTabaco = v)),
+          _buildRadioOption('<1 vez al mes', _consumoTabaco, (v) => setState(() => _consumoTabaco = v)),
+          _buildRadioOption('Nunca', _consumoTabaco, (v) => setState(() => _consumoTabaco = v)),
+        ],
+      ),
+      const SizedBox(height: 16),
 
-        // Consumo de Terapia Alternativa (Hierbas Medicinales)
-        const Text(
-          'Consumo de terapia alternativa (Hierbas medicinales)',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        Row(
-          children: [
-            _buildRadioOption('Sí', _terapiaAlternativa, (value) {
-              setState(() {
-                _terapiaAlternativa = value;
-              });
-            }),
-            _buildRadioOption('No', _terapiaAlternativa, (value) {
-              setState(() {
-                _terapiaAlternativa = value;
-              });
-            }),
-          ],
-        ),
-        const SizedBox(height: 8.0),
+      // Terapia Alternativa
+      const Text(
+        'Consumo de terapia alternativa (Hierbas medicinales)',
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      Wrap(
+        spacing: 20,
+        children: [
+          _buildRadioOption('Sí', _terapiaAlternativa, (v) => setState(() => _terapiaAlternativa = v)),
+          _buildRadioOption('No', _terapiaAlternativa, (v) => setState(() => _terapiaAlternativa = v)),
+        ],
+      ),
+      const SizedBox(height: 8),
 
-        // Campo de texto para "Cuáles"
-        if (_terapiaAlternativa == 'Sí')
-          TextField(
-            controller: _medicinaalternativa,
-            decoration: InputDecoration(
-              labelText: 'Cuáles',
-              border: OutlineInputBorder(),
-            ),
-            onChanged: (value) {
-              setState(() {
-                _cualesTerapias = value;
-              });
-            },
-          ),
-
-        const SizedBox(height: 16.0),
-
-        // Control de la efectividad terapéutica de tuberculosis pulmonar
-        const Text(
-          'Control de la efectividad terapéutica de tuberculosis pulmonar',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8.0),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _resultadobaciloscopia,
-                decoration: InputDecoration(
-                  labelText: 'Resultado de prueba Basiloscopia',
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (value) {
-                  // Aquí puedes manejar el valor ingresado
-                },
-              ),
-            ),
-            const SizedBox(width: 16.0),
-            Expanded(
-              child: TextField(
-                controller: _resultadocultivo,
-                decoration: InputDecoration(
-                  labelText: 'Resultado de prueba de cultivo',
-                  border: OutlineInputBorder(),
-                ),
-                onChanged: (value) {
-                  // Aquí puedes manejar el valor ingresado
-                },
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16.0),
-
-        // Resultado de prueba GeneXpert
-        const Text(
-          'Resultado de prueba GeneXpert',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8.0),
+      if (_terapiaAlternativa == 'Sí')
         TextField(
-          controller: _resultadogenexpert,
-          decoration: InputDecoration(
-            labelText: 'Resultado de prueba GeneXpert',
+          controller: _medicinaalternativa,
+          decoration: const InputDecoration(
+            labelText: 'Cuáles',
             border: OutlineInputBorder(),
+            contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
           ),
-          onChanged: (value) {
-            // Aquí puedes manejar el valor ingresado
-          },
+          onChanged: (value) => setState(() => _cualesTerapias = value),
         ),
-      ],
-    );
-  }
+      const SizedBox(height: 20),
+
+      // Pruebas diagnósticas
+      const Text(
+        'Control de la efectividad terapéutica de tuberculosis pulmonar',
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      const SizedBox(height: 12),
+      LayoutBuilder(
+        builder: (context, constraints) {
+          return constraints.maxWidth < 600
+              ? Column(
+                  children: [
+                    _buildCampoPrueba(_resultadobaciloscopia, 'Basiloscopia'),
+                    const SizedBox(height: 12),
+                    _buildCampoPrueba(_resultadocultivo, 'Cultivo'),
+                  ],
+                )
+              : Row(
+                  children: [
+                    Expanded(child: _buildCampoPrueba(_resultadobaciloscopia, 'Basiloscopia')),
+                    const SizedBox(width: 16),
+                    Expanded(child: _buildCampoPrueba(_resultadocultivo, 'Cultivo')),
+                  ],
+                );
+        },
+      ),
+      const SizedBox(height: 16),
+      _buildCampoPrueba(_resultadogenexpert, 'GeneXpert'),
+    ],
+  );
+}
+
+Widget _buildCampoPrueba(TextEditingController controller, String label) {
+  return TextField(
+    controller: controller,
+    decoration: InputDecoration(
+      labelText: 'Resultado de prueba $label',
+      border: const OutlineInputBorder(),
+      contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+    ),
+  );
+}
 
   // Método auxiliar para construir opciones de radio
-  Widget _buildRadioOption(
-      String label, String? groupValue, Function(String?) onChanged) {
+  Widget _buildRadioOption(String label, String? groupValue, ValueChanged<String?> onChanged) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -1273,8 +1113,9 @@ class _MedicationFormState extends State<MedicationForm> {
           value: label,
           groupValue: groupValue,
           onChanged: onChanged,
+          visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
         ),
-        Text(label),
+        Text(label, style: const TextStyle(fontSize: 14)),
       ],
     );
   }
