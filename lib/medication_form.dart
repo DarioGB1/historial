@@ -441,13 +441,7 @@ Widget _buildNumberInputsResponsive() {
           ],
         ),
         const SizedBox(height: 20),
-        ElevatedButton(
-          onPressed: () {
-            print(responses);
-            print(times);
-          },
-          child: const Text('Guardar Respuestas'),
-        ),
+        
       ],
     );
   }
