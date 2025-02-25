@@ -3,13 +3,17 @@ import 'package:cloud_firestore/cloud_firestore.dart'; // Para Firestore
 import 'package:firebase_core/firebase_core.dart'; // Para inicializar Firebase
 
 class MedicationForm extends StatefulWidget {
-  const MedicationForm({Key? key}) : super(key: key);
+  final String? nroPaciente;
+  final String? proximoNumEntrevista;
+
+  const MedicationForm({Key? key, this.nroPaciente, this.proximoNumEntrevista}) : super(key: key);
 
   @override
   _MedicationFormState createState() => _MedicationFormState();
 }
 
 class _MedicationFormState extends State<MedicationForm> {
+  final TextEditingController _numHistorialController = TextEditingController();
   final TextEditingController _nroentrevista = TextEditingController();
   final TextEditingController _nropaciente = TextEditingController();
   final TextEditingController _centroSaludController = TextEditingController();
@@ -37,8 +41,14 @@ class _MedicationFormState extends State<MedicationForm> {
   if (!_formKey.currentState!.validate()) return;
 
   try {
-    // Recopilar datos del formulario
-    Map<String, dynamic> formularioData = {
+    final pacienteRef = _firestore.collection('form_soc').doc(_nropaciente.text);
+
+    // Verificar si el paciente ya existe
+    final pacienteSnapshot = await pacienteRef.get();
+
+    // Datos del formulario
+    final formularioData = {
+      'num_historial': _numHistorialController.text, // Número de historial manual
       'nro_entrevista': _nroentrevista.text,
       'fecha': FieldValue.serverTimestamp(),
       'institucion_salud': {
@@ -66,40 +76,27 @@ class _MedicationFormState extends State<MedicationForm> {
         'hierbas_medicinales': _cualesTerapias,
       },
       'paciente_expuesto': _pacienteExpuesto,
+      if (_pacienteExpuesto == 'Expuesto') 'test_morisky': _getMoriskyData(),
     };
 
-    // Añadir datos del test Morisky si es paciente expuesto
-    if (_pacienteExpuesto == 'Expuesto') {
-      formularioData['test_morisky'] = _getMoriskyData();
-    }
-
-    // Referencia al documento del paciente
-    DocumentReference pacienteRef = _firestore
-        .collection('form_soc')
-        .doc(_nropaciente.text); // Usar nro_paciente como ID del documento
-
-    // Verificar si el paciente ya existe
-    DocumentSnapshot pacienteSnapshot = await pacienteRef.get();
-
+    // Si el paciente no existe, crear el documento principal
     if (!pacienteSnapshot.exists) {
-      // Si el paciente no existe, crear el documento con datos básicos
       await pacienteRef.set({
         'nro_paciente': _nropaciente.text,
-        'datos_paciente': formularioData['datos_paciente'], // Datos generales
+        'datos_paciente': formularioData['datos_paciente'],
       });
     }
 
-    // Agregar el formulario a la subcolección 'historial'
+    // Guardar el formulario en la subcolección "historial"
     await pacienteRef.collection('historial').add(formularioData);
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Formulario guardado en el historial del paciente.'),
+      const SnackBar(
+        content: Text('Formulario guardado correctamente'),
         backgroundColor: Colors.green,
       ),
     );
 
-    // Limpiar formulario después de guardar
     _limpiarFormulario();
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -128,6 +125,7 @@ class _MedicationFormState extends State<MedicationForm> {
   void _limpiarFormulario() {
     _formKey.currentState!.reset();
     setState(() {
+      _numHistorialController.clear();
       _gradoInstruccion = null;
       _estadoCivil = null;
       _actividadFisica = null;
@@ -235,7 +233,19 @@ class _MedicationFormState extends State<MedicationForm> {
                 const Text(
                   'ANEXO 3 | Formulario sociodemográfico',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
+                ),const SizedBox(height: 16),
+
+      // Campo para el número de historial
+      TextField(
+        controller: _numHistorialController,
+        decoration: const InputDecoration(
+          labelText: 'Número de Historial',
+          border: OutlineInputBorder(),
+        ),
+        keyboardType: TextInputType.number,
+      ),
+      const SizedBox(height: 16),
+
                 const SizedBox(height: 16),
                 
                 // Radio buttons
@@ -615,83 +625,161 @@ Widget _buildNumberInputsResponsive() {
   }
 
   Widget _seccionDatosFisicos() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Datos Físicos',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8.0),
-        Row(
-          children: [
-            Expanded(
-              flex: 2,
-              child: TextFormField(
-                controller: _edadController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: 'Edad',
-                  border: const OutlineInputBorder(),
-                  suffixText: 'años',
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Text(
+        'Datos Físicos',
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      const SizedBox(height: 8.0),
+
+      // Fila para Edad y Sexo
+      Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: TextFormField(
+              controller: _edadController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Edad',
+                border: OutlineInputBorder(),
+                suffixText: 'años',
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) return 'Ingrese la edad';
+                if (int.tryParse(value) == null) return 'Edad inválida';
+                return null;
+              },
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            flex: 3,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Sexo',
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) return 'Ingrese la edad';
-                  if (int.tryParse(value) == null) return 'Edad inválida';
-                  return null;
-                },
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              flex: 3,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Sexo',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: RadioListTile<String>(
-                          title: const Text('Masculino'),
-                          value: 'Masculino',
-                          groupValue: _genero,
-                          onChanged: (value) {
-                            setState(() {
-                              _genero = value;
-                            });
-                          },
-                          dense: true,
-                          contentPadding: EdgeInsets.zero,
-                        ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: RadioListTile<String>(
+                        title: const Text('Masculino'),
+                        value: 'Masculino',
+                        groupValue: _genero,
+                        onChanged: (value) {
+                          setState(() {
+                            _genero = value;
+                          });
+                        },
+                        dense: true,
+                        contentPadding: EdgeInsets.zero,
                       ),
-                      Expanded(
-                        child: RadioListTile<String>(
-                          title: const Text('Femenino'),
-                          value: 'Femenino',
-                          groupValue: _genero,
-                          onChanged: (value) {
-                            setState(() {
-                              _genero = value;
-                            });
-                          },
-                          dense: true,
-                          contentPadding: EdgeInsets.zero,
-                        ),
+                    ),
+                    Expanded(
+                      child: RadioListTile<String>(
+                        title: const Text('Femenino'),
+                        value: 'Femenino',
+                        groupValue: _genero,
+                        onChanged: (value) {
+                          setState(() {
+                            _genero = value;
+                          });
+                        },
+                        dense: true,
+                        contentPadding: EdgeInsets.zero,
                       ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
-        ),
-      ],
+          ),
+        ],
+      ),
+      const SizedBox(height: 16),
+
+      // Fila para Peso y Talla
+      Row(
+        children: [
+          Expanded(
+            child: TextFormField(
+              controller: _pesoController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Peso (kg)',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) return 'Ingrese el peso';
+                if (double.tryParse(value) == null) return 'Peso inválido';
+                return null;
+              },
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: TextFormField(
+              controller: _tallaController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Talla (cm)',
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) return 'Ingrese la talla';
+                if (double.tryParse(value) == null) return 'Talla inválida';
+                return null;
+              },
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 16),
+
+      // Campo para IMC y botón para calcular
+      Row(
+        children: [
+          Expanded(
+            child: TextFormField(
+              controller: _imcController,
+              decoration: const InputDecoration(
+                labelText: 'IMC',
+                border: OutlineInputBorder(),
+              ),
+              readOnly: true, // El IMC se calcula automáticamente
+            ),
+          ),
+          const SizedBox(width: 16),
+          ElevatedButton(
+            onPressed: _calcularIMC,
+            child: const Text('Calcular IMC'),
+          ),
+        ],
+      ),
+    ],
+  );
+}
+void _calcularIMC() {
+  final peso = double.tryParse(_pesoController.text);
+  final talla = double.tryParse(_tallaController.text);
+
+  if (peso != null && talla != null && talla > 0) {
+    final imc = peso / ((talla / 100) * (talla / 100)); // Fórmula del IMC
+    _imcController.text = imc.toStringAsFixed(2); // Mostrar 2 decimales
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Ingrese un peso y talla válidos'),
+        backgroundColor: Colors.red,
+      ),
     );
   }
+}
 
   Widget _seccionCriteriosDeInclusion() {
     final List<String> medicamentosBase = [

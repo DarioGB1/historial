@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:historialmedico/medication_form.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({Key? key}) : super(key: key);
@@ -196,6 +197,8 @@ class FormularioDetalleScreen extends StatelessWidget {
           children: [
             Text('Entrevista N°: ${formulario['nro_entrevista']}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
+            Text('N° de historial: ${formulario['num_historial']}', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
             Text('Fecha: ${formulario['fecha'].toDate().toString()}', style: const TextStyle(fontSize: 16)),
             const SizedBox(height: 16),
             const Text('Datos del Paciente:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
@@ -241,7 +244,42 @@ class PatientDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Detalles del Paciente')),
+      appBar: AppBar(
+        title: const Text('Detalles del Paciente'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () async {
+              // Obtener el último número de entrevista
+              final historialSnapshot = await FirebaseFirestore.instance
+                  .collection('form_soc')
+                  .doc(patientId)
+                  .collection('historial')
+                  .orderBy('nro_entrevista', descending: true)
+                  .limit(1)
+                  .get();
+
+              int proximoNumEntrevista = 1; // Valor por defecto si no hay historial
+              if (historialSnapshot.docs.isNotEmpty) {
+                final ultimaEntrevista = historialSnapshot.docs.first.data();
+                final ultimoNumEntrevista = int.tryParse(ultimaEntrevista['nro_entrevista']) ?? 0;
+                proximoNumEntrevista = ultimoNumEntrevista + 1;
+              }
+
+              // Navegar a MedicationForm con el número de paciente y el próximo número de entrevista
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MedicationForm(
+                    nroPaciente: patientId,
+                    proximoNumEntrevista: proximoNumEntrevista.toString(),
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
       body: FutureBuilder<DocumentSnapshot>(
         future: FirebaseFirestore.instance.collection('form_soc').doc(patientId).get(),
         builder: (context, snapshot) {
