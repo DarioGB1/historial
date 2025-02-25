@@ -233,51 +233,73 @@ class _MedicationFormState extends State<MedicationForm> {
                 const Text(
                   'ANEXO 3 | Formulario sociodemográfico',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),const SizedBox(height: 16),
-
-      // Campo para el número de historial
-      TextField(
-        controller: _numHistorialController,
-        decoration: const InputDecoration(
-          labelText: 'Número de Historial',
-          border: OutlineInputBorder(),
-        ),
-        keyboardType: TextInputType.number,
-      ),
-      const SizedBox(height: 16),
-
+                ),
                 const SizedBox(height: 16),
-                
+
+                // Campo para el número de historial (Móvil)
+                TextField(
+                  controller: _numHistorialController,
+                  decoration: const InputDecoration(
+                    labelText: 'Número de Historial',
+                    border: OutlineInputBorder(),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                const SizedBox(height: 16),
+
                 // Radio buttons
                 _buildRadioButtonsResponsive(),
                 const SizedBox(height: 16),
                 
-                // Campos de entrada
+                // Campos de entrevista y paciente
                 _buildNumberInputsResponsive(),
               ],
             );
           } else { // Modo escritorio/tablet
-            return Row(
+            return Column(
               children: [
-                // Título
-                const Expanded(
-                  flex: 2,
-                  child: Text(
-                    'ANEXO 3 | Formulario sociodemográfico',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
+                // Fila para título y número de historial
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Título
+                    const Expanded(
+                      flex: 2,
+                      child: Text(
+                        'ANEXO 3 | Formulario sociodemográfico',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    // Campo para el número de historial (Escritorio)
+                    Expanded(
+                      flex: 1,
+                      child: TextField(
+                        controller: _numHistorialController,
+                        decoration: const InputDecoration(
+                          labelText: 'Número de Historial',
+                          border: OutlineInputBorder(),
+                        ),
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                  ],
                 ),
-                
-                // Radio buttons
-                Expanded(
-                  flex: 3,
-                  child: _buildRadioButtonsResponsive(),
-                ),
-                
-                // Campos de entrada
-                Expanded(
-                  flex: 2,
-                  child: _buildNumberInputsResponsive(),
+                const SizedBox(height: 16),
+
+                // Fila para radio buttons y campos de entrada
+                Row(
+                  children: [
+                    // Radio buttons
+                    Expanded(
+                      flex: 3,
+                      child: _buildRadioButtonsResponsive(),
+                    ),
+                    // Campos de entrevista y paciente
+                    Expanded(
+                      flex: 2,
+                      child: _buildNumberInputsResponsive(),
+                    ),
+                  ],
                 ),
               ],
             );
