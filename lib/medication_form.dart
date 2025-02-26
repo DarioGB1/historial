@@ -236,16 +236,7 @@ class _MedicationFormState extends State<MedicationForm> {
                 ),
                 const SizedBox(height: 16),
 
-                // Campo para el número de historial (Móvil)
-                TextField(
-                  controller: _numHistorialController,
-                  decoration: const InputDecoration(
-                    labelText: 'Número de Historial',
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.number,
-                ),
-                const SizedBox(height: 16),
+                
 
                 // Radio buttons
                 _buildRadioButtonsResponsive(),
@@ -270,18 +261,7 @@ class _MedicationFormState extends State<MedicationForm> {
                         style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ),
-                    // Campo para el número de historial (Escritorio)
-                    Expanded(
-                      flex: 1,
-                      child: TextField(
-                        controller: _numHistorialController,
-                        decoration: const InputDecoration(
-                          labelText: 'Número de Historial',
-                          border: OutlineInputBorder(),
-                        ),
-                        keyboardType: TextInputType.number,
-                      ),
-                    ),
+                    
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -525,68 +505,83 @@ Widget _buildNumberInputsResponsive() {
   }
 
   Widget _seccionDatosPaciente() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Datos del paciente',
-          style: TextStyle(fontWeight: FontWeight.bold),
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Text(
+        'Datos del paciente',
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      const SizedBox(height: 8.0),
+      
+      // Campo para el número de historial
+      TextField(
+        controller: _numHistorialController,
+        decoration: const InputDecoration(
+          labelText: 'Número de Historial',
+          border: OutlineInputBorder(),
         ),
-        const SizedBox(height: 8.0),
-        TextField(
-          controller: _nombresController,
-          decoration: const InputDecoration(
-            labelText: 'Nombre(s)',
-            border: OutlineInputBorder(),
-            contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-          ),
+        keyboardType: TextInputType.number,
+      ),
+      const SizedBox(height: 12),
+      
+      // Campo para el nombre
+      TextField(
+        controller: _nombresController,
+        decoration: const InputDecoration(
+          labelText: 'Nombre(s)',
+          border: OutlineInputBorder(),
+          contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         ),
-        const SizedBox(height: 12),
-        
-        LayoutBuilder(
-          builder: (context, constraints) {
-            return constraints.maxWidth < 600
-                ? Column(
-                    children: [
-                      _buildApellidoField(_apellidoPaternoController, 'Apellido Paterno'),
-                      const SizedBox(height: 12),
-                      _buildApellidoField(_apellidoMaternoController, 'Apellido Materno'),
-                    ],
-                  )
-                : Row(
-                    children: [
-                      Expanded(child: _buildApellidoField(_apellidoPaternoController, 'Apellido Paterno')),
-                      const SizedBox(width: 16),
-                      Expanded(child: _buildApellidoField(_apellidoMaternoController, 'Apellido Materno')),
-                    ],
-                  );
-          },
-        ),
-        const SizedBox(height: 20),
-        
-        LayoutBuilder(
-          builder: (context, constraints) {
-            return constraints.maxWidth < 600
-                ? Column(
-                    children: [
-                      _buildGradoInstruccion(),
-                      const SizedBox(height: 24),
-                      _buildEstadoCivil(),
-                    ],
-                  )
-                : Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(child: _buildGradoInstruccion()),
-                      const SizedBox(width: 32),
-                      Expanded(child: _buildEstadoCivil()),
-                    ],
-                  );
-          },
-        ),
-      ],
-    );
-  }
+      ),
+      const SizedBox(height: 12),
+      
+      LayoutBuilder(
+        builder: (context, constraints) {
+          return constraints.maxWidth < 600
+              ? Column(
+                  children: [
+                    _buildApellidoField(_apellidoPaternoController, 'Apellido Paterno'),
+                    const SizedBox(height: 12),
+                    _buildApellidoField(_apellidoMaternoController, 'Apellido Materno'),
+                  ],
+                )
+              : Row(
+                  children: [
+                    Expanded(child: _buildApellidoField(_apellidoPaternoController, 'Apellido Paterno')),
+                    const SizedBox(width: 16),
+                    Expanded(child: _buildApellidoField(_apellidoMaternoController, 'Apellido Materno')),
+                  ],
+                );
+        },
+      ),
+      const SizedBox(height: 20),
+      
+      LayoutBuilder(
+        builder: (context, constraints) {
+          return constraints.maxWidth < 600
+              ? Column(
+                  children: [
+                    _buildGradoInstruccion(),
+                    const SizedBox(height: 24),
+                    _buildEstadoCivil(),
+                  ],
+                )
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: _buildGradoInstruccion()),
+                    const SizedBox(width: 32),
+                    Expanded(child: _buildEstadoCivil()),
+                  ],
+                );
+        },
+      ),
+    ],
+  );
+}
+
+
 
   Widget _buildApellidoField(TextEditingController controller, String label) {
     return TextField(
